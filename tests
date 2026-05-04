@@ -1,0 +1,23 @@
+import unittest
+import converter
+
+class TestCurrencyConverter(unittest.TestCase):
+    def test_validate_input_positive(self):
+        app = converter.CurrencyConverterApp(None)
+        app.amount_entry.insert(0, "123.45")
+        self.assertTrue(app.validate_input())
+
+    def test_validate_input_negative(self):
+        app = converter.CurrencyConverterApp(None)
+        app.amount_entry.insert(0, "-10")
+        self.assertFalse(app.validate_input())
+
+    def test_validate_input_zero(self):
+        app = converter.CurrencyConverterApp(None)
+        app.amount_entry.insert(0, "0")
+        self.assertFalse(app.validate_input())
+
+    def test_validate_input_invalid(self):
+        app = converter.CurrencyConverterApp(None)
+        app.amount_entry.insert(0, "abc")
+        self.assertFalse(app.validate_input())
