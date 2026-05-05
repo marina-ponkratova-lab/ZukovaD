@@ -1,23 +1,42 @@
 import unittest
-import converter
+from unittest.mock import MagicMock
 
-class TestCurrencyConverter(unittest.TestCase):
-    def test_validate_input_positive(self):
-        app = converter.CurrencyConverterApp(None)
-        app.amount_entry.insert(0, "123.45")
-        self.assertTrue(app.validate_input())
-
-    def test_validate_input_negative(self):
-        app = converter.CurrencyConverterApp(None)
-        app.amount_entry.insert(0, "-10")
-        self.assertFalse(app.validate_input())
-
-    def test_validate_input_zero(self):
-        app = converter.CurrencyConverterApp(None)
-        app.amount_entry.insert(0, "0")
-        self.assertFalse(app.validate_input())
-
-    def test_validate_input_invalid(self):
-        app = converter.CurrencyConverterApp(None)
-        app.amount_entry.insert(0, "abc")
-        self.assertFalse(app.validate_input())
+class TestBookTracker(unittest.TestCase):
+    def setUp(self):
+        from tracker import BookTrackerApp
+        
+        # Создаём mock-объект для root Tk (чтобы не открывать окно при тестах)
+        mock_root = MagicMock()
+        
+        # Создаём экземпляр приложения с подменёнными виджетами
+        self.app = BookTrackerApp(mock_root)
+        
+    def test_validate_input_valid(self):
+        # Подмена методов get() для виджетов ввода
+        self.app.title_entry.get = MagicMock(return_value="Война и мир")
+        self.app.author_entry.get = MagicMock(return_value="Толстой")
+        self.app.genre_entry.get = MagicMock(return_value="Роман")
+        self.app.pages_entry.get = MagicMock(return_value="1225")
+        
+        self.assertTrue(self.app.validate_input())
+    
+    def test_validate_input_empty_fields(self):
+        self.app.title_entry.get = MagicMock(return_value="")
+        
+        self.assertFalse(self.app.validate_input())
+    
+    def test_validate_input_invalid_pages(self):
+        self.app.title_entry.get = MagicMock(return_value="Война и мир")
+        self.app.author_entry.get = MagicMock(return_value="Толстой")
+        self.app.genre_entry.get = MagicMock(return_value="Роман")
+        
+        # Недопустимые значения для страниц
+        
+        # Не число
+        self.app.pages_entry.get = MagicMock(return_value="abc")
+        self.assertFalse(self.app.validate_input())
+        
+    def test_validate_input_zero_pages(self):
+         # Ноль страниц — невалидно по ТЗ (должно быть > 0)
+         self.app.pages_entry.get = MagicMock(return_value="0")
+         self.assertFalse(self.app.validate_input())
